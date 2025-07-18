@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
+import re
 
 # -------------------------------------------------------------------
 # Configuração da página
@@ -10,38 +11,57 @@ st.set_page_config(page_title="Plenum", layout="wide")
 st.title("RELATÓRIO COMERCIAL — PLENUM")
 
 # -------------------------------------------------------------------
-# Debug de filesystem
+# Defina o caminho correto do seu Excel (deixe-o na raiz do app)
 # -------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
-
-# lista o que existe nesse diretório
-try:
-    entries = [p.name for p in ROOT.iterdir()]
-except Exception as e:
-    entries = [f"Erro ao listar diretório: {e}"]
-
-st.write("🗂️ ROOT do app:", str(ROOT))
-st.write("📄 Arquivos em ROOT:", entries)
-
-# caminho esperado para o Excel
 DATA_FILE = ROOT / "Plenum_2024-2025_ordenado.xlsx"
-st.write("🔍 Procurando o arquivo em:", str(DATA_FILE))
 
 # -------------------------------------------------------------------
-# Função de carregamento
+# Carrega e prepara os dados
 # -------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def load_plenum() -> pd.DataFrame:
     if not DATA_FILE.exists():
         st.error(f"❌ Arquivo não encontrado em:\n{DATA_FILE}")
         return pd.DataFrame()
+
     df = pd.read_excel(DATA_FILE)
+    # mostre para debug quais colunas vieram
+    st.write("🔎 Colunas carregadas:", df.columns.tolist())
+
+    # retire espaços extras de cabeçalhos
+    df.columns = df.columns.str.strip()
+
+    # 1) ENCONTRE QUALQUER COLUNA QUE CONTENHA 'valor' (ignorando maiúsc./minúsc.)
+    valor_cols = [c for c in df.columns if re.search(r"valor", c, re.IGNORECASE)]
+    if not valor_cols:
+        st.error("❌ Não encontrei nenhuma coluna com 'valor' no nome.")
+        return pd.DataFrame()
+
+    # 2) Renomeie a primeira que encontrou para 'Valor_Servicos'
+    df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
+    st.write(f"ℹ️ '{valor_cols[0]}' renomeada para 'Valor_Servicos'")
+
+    # 3) Converta tipos
+    df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
+    df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
+
+    # 4) Limpeza básica
+    df = df.dropna(subset=[
+        "Cidade", "Estado", "Região",
+        "Mesorregiao", "Microrregiao",
+        "Status", "Emissão", "Valor_Servicos"
+    ])
+
     return df
 
-# carrega e para se falhar
 df = load_plenum()
 if df.empty:
     st.stop()
+
+# A partir daqui, 'df' já tem a coluna 'Valor_Servicos' corretamente mapeada
+# e você não deverá mais receber KeyError em:
+#    df[df["Status"] == "Cancelada"].groupby(... )["Valor_Servicos"]
 
 # === Resumo de Status ===
 status_counts = df["Status"].value_counts()
@@ -51,11 +71,11 @@ normal  = int(status_counts.get("Normal",   0))
 pct_cancel = (cancel / total * 100) if total else 0
 
 st.subheader("Resumo de Status")
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Total de Notas",     f"{total}")
-col2.metric("Ativa",              f"{normal}")
-col3.metric("Cancelada",          f"{cancel}")
-col4.metric("% Cancelada",        f"{pct_cancel:.2f}%")
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Total de Notas", f"{total}")
+c2.metric("Ativa",          f"{normal}")
+c3.metric("Cancelada",      f"{cancel}")
+c4.metric("% Cancelada",    f"{pct_cancel:.2f}%")
 
 # === Evolução de Status por Mês ===
 st.subheader("Evolução de Status por Mês")
@@ -67,10 +87,25 @@ stats_time = (
 stats_time["Emissão"] = stats_time["Emissão"].astype(str)
 fig1 = px.line(
     stats_time, x="Emissão", y="Quantidade", color="Status",
-    markers=True,
-    labels={"Quantidade":"Nº Registros", "Emissão":"Mês"}
+    markers=True, labels={"Quantidade":"Nº Registros", "Emissão":"Mês"}
 )
 st.plotly_chart(fig1, use_container_width=True)
+
+# === Evolução do Valor Cancelado por Mês ===
+st.subheader("Evolução de Valor Cancelado por Mês")
+cancel_time = (
+    df[df["Status"] == "Cancelada"]
+      .groupby(df["Emissão"].dt.to_period("M"))["Valor_Servicos"]
+      .sum()
+      .reset_index()
+)
+cancel_time["Emissão"] = cancel_time["Emissão"].astype(str)
+fig2 = px.line(
+    cancel_time, x="Emissão", y="Valor_Servicos",
+    markers=True,
+    labels={"Valor_Servicos":"Vendas Canceladas (R$)", "Emissão":"Mês"}
+)
+st.plotly_chart(fig2, use_container_width=True)
 
 # === Evolução do Valor Cancelado por Mês ===
 st.subheader("Evolução de Valor Cancelado por Mês")
