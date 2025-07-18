@@ -3,31 +3,45 @@ import pandas as pd
 import plotly.express as px
 from pathlib import Path
 
-# Configuração
+# -------------------------------------------------------------------
+# Configuração da página
+# -------------------------------------------------------------------
 st.set_page_config(page_title="Plenum", layout="wide")
 st.title("RELATÓRIO COMERCIAL — PLENUM")
 
-# Descobre onde estamos e lista arquivos
+# -------------------------------------------------------------------
+# Debug de filesystem
+# -------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
-st.write("🗂️ ROOT do app:", ROOT)
-st.write("📄 Arquivos em ROOT:", [p.name for p in ROOT.iterdir()])
 
-# Define o caminho do Excel (espera-o na raiz do app)
+# lista o que existe nesse diretório
+try:
+    entries = [p.name for p in ROOT.iterdir()]
+except Exception as e:
+    entries = [f"Erro ao listar diretório: {e}"]
+
+st.write("🗂️ ROOT do app:", str(ROOT))
+st.write("📄 Arquivos em ROOT:", entries)
+
+# caminho esperado para o Excel
 DATA_FILE = ROOT / "Plenum_2024-2025_ordenado.xlsx"
-st.write("🔍 Procurando o arquivo em:", DATA_FILE)
+st.write("🔍 Procurando o arquivo em:", str(DATA_FILE))
 
+# -------------------------------------------------------------------
+# Função de carregamento
+# -------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def load_plenum() -> pd.DataFrame:
     if not DATA_FILE.exists():
         st.error(f"❌ Arquivo não encontrado em:\n{DATA_FILE}")
         return pd.DataFrame()
     df = pd.read_excel(DATA_FILE)
-    # ... seu processamento ...
     return df
 
+# carrega e para se falhar
 df = load_plenum()
 if df.empty:
-    st.stop())
+    st.stop()
 
 # === Resumo de Status ===
 status_counts = df["Status"].value_counts()
