@@ -3,64 +3,31 @@ import pandas as pd
 import plotly.express as px
 from pathlib import Path
 
-# -------------------------------------------------------------------
-# Configuração da página
-# -------------------------------------------------------------------
+# Configuração
 st.set_page_config(page_title="Plenum", layout="wide")
-
-# -------------------------------------------------------------------
-# Título
-# -------------------------------------------------------------------
 st.title("RELATÓRIO COMERCIAL — PLENUM")
 
-# -------------------------------------------------------------------
-# Caminho para o arquivo de dados
-# -------------------------------------------------------------------
-from pathlib import Path
-
-# se o seu script está em pages/1_Plenum.py,
-# então ROOT = pasta do seu app
+# Descobre onde estamos e lista arquivos
 ROOT = Path(__file__).resolve().parent.parent
+st.write("🗂️ ROOT do app:", ROOT)
+st.write("📄 Arquivos em ROOT:", [p.name for p in ROOT.iterdir()])
 
-# agora o Excel deve estar em ROOT/
+# Define o caminho do Excel (espera-o na raiz do app)
 DATA_FILE = ROOT / "Plenum_2024-2025_ordenado.xlsx"
+st.write("🔍 Procurando o arquivo em:", DATA_FILE)
 
-
-# -------------------------------------------------------------------
-# Função para carregar dados da base Plenum
-# -------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def load_plenum() -> pd.DataFrame:
     if not DATA_FILE.exists():
         st.error(f"❌ Arquivo não encontrado em:\n{DATA_FILE}")
         return pd.DataFrame()
-
     df = pd.read_excel(DATA_FILE)
-    df.columns = df.columns.str.strip()
-
-    # Renomeia a primeira coluna que contenha "Valor"
-    valor_cols = [c for c in df.columns if "Valor" in c]
-    if not valor_cols:
-        st.error("❌ Coluna de Valor não encontrada.")
-        return pd.DataFrame()
-    df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
-
-    # Converte tipos
-    df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
-    df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
-
-    # Remove linhas com dados faltantes nas colunas essenciais
-    df = df.dropna(subset=[
-        "Cidade", "Estado", "Região",
-        "Mesorregiao", "Microrregiao",
-        "Status", "Emissão", "Valor_Servicos"
-    ])
+    # ... seu processamento ...
     return df
 
-# Carrega dados
 df = load_plenum()
 if df.empty:
-    st.stop()
+    st.stop())
 
 # === Resumo de Status ===
 status_counts = df["Status"].value_counts()
