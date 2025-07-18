@@ -16,8 +16,15 @@ st.title("RELATÓRIO COMERCIAL — PLENUM")
 # -------------------------------------------------------------------
 # Caminho para o arquivo de dados
 # -------------------------------------------------------------------
+from pathlib import Path
+
+# se o seu script está em pages/1_Plenum.py,
+# então ROOT = pasta do seu app
 ROOT = Path(__file__).resolve().parent.parent
-DATA_FILE = ROOT / "meu_projeto" / "Plenum_2024-2025_ordenado.xlsx"
+
+# agora o Excel deve estar em ROOT/
+DATA_FILE = ROOT / "Plenum_2024-2025_ordenado.xlsx"
+
 
 # -------------------------------------------------------------------
 # Função para carregar dados da base Plenum
