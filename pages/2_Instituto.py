@@ -11,7 +11,7 @@ st.title("RELATÓRIO COMERCIAL — INSTITUTO")
 # Função para carregar dados da base Instituto
 @st.cache_data(show_spinner=False)
 def load_instituto() -> pd.DataFrame:
-    df = pd.read_excel("meu_projeto\Institulo_2024-2025_ordenado.xlsx")
+    df = pd.read_excel("meu_projeto\Instituto_2024-2025_ordenado.xlsx")
     df.columns = df.columns.str.strip()
     # Renomeia a primeira coluna que contenha "Valor"
     valor_cols = [c for c in df.columns if "Valor" in c]
