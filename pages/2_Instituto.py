@@ -12,7 +12,7 @@ st.title("RELATÓRIO COMERCIAL — INSTITUTO")
 @st.cache_data
 def load_data() -> pd.DataFrame:
     root = Path(__file__).resolve().parent.parent
-    file = root / "Instituto_2024-2025_ordenado.xlsx"
+    file = root / "Institulo_2024-2025_ordenado.xlsx"
     if not file.exists():
         st.error(f"❌ Arquivo não encontrado: {file}")
         return pd.DataFrame()
