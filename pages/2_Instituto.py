@@ -10,23 +10,18 @@ import re
 st.set_page_config(page_title="Instituto", layout="wide")
 st.title("RELATÓRIO COMERCIAL — INSTITUTO")
 
-# -------------------------------------------------------------------
-# Caminho para o arquivo de dados (na raiz do app)
-# -------------------------------------------------------------------
-ROOT = Path(__file__).resolve().parent.parent
-DATA_FILE = ROOT / "Institulo_2024-2025_ordenado.xlsx"
+@st.cache_data
+def load_data():
+    # 1) Descobre a raiz do seu repositório (um nível acima de pages/)
+    ROOT = Path(__file__).resolve().parent.parent
 
-# -------------------------------------------------------------------
-# Carrega e prepara os dados
-# -------------------------------------------------------------------
-@st.cache_data(show_spinner=False)
-def load_instituto() -> pd.DataFrame:
-    if not DATA_FILE.exists():
-        st.error(f"❌ Arquivo não encontrado em:\n{DATA_FILE}")
-        return pd.DataFrame()
+    # 2) Aponta para os arquivos .xlsx que estão na raiz
+    instituo_file = ROOT / "Instituto_2024-2025_ordenado.xlsx"
+    plenum_file  = ROOT / "Plenum_2024-2025_ordenado.xlsx"
 
-    df = pd.read_excel(DATA_FILE)
-    df.columns = df.columns.str.strip()
+    # 3) Lê cada planilha (por padrão a primeira aba)
+    df_instituto = pd.read_excel(instituo_file)
+    df_plenum    = pd.read_excel(plenum_file)
 
     # identifica e renomeia a primeira coluna com "valor"
     valor_cols = [c for c in df.columns if re.search(r"valor", c, re.IGNORECASE)]
