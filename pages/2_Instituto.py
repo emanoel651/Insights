@@ -11,19 +11,10 @@ st.set_page_config(page_title="Instituto", layout="wide")
 st.title("RELATÓRIO COMERCIAL — INSTITUTO")
 
 # -------------------------------------------------------------------
-# Debug de filesystem
+# Caminho para o arquivo de dados (na raiz do app)
 # -------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
-try:
-    entries = [p.name for p in ROOT.iterdir()]
-except Exception as e:
-    entries = [f"Erro ao listar: {e}"]
-
-st.write("🗂️ ROOT do app:", ROOT)
-st.write("📄 Arquivos em ROOT:", entries)
-
-DATA_FILE = ROOT / "Institulo_2024-2025_ordenado.xlsx"
-st.write("🔍 Procurando arquivo em:", DATA_FILE)
+DATA_FILE = ROOT / "Instituto_2024-2025_ordenado.xlsx"
 
 # -------------------------------------------------------------------
 # Carrega e prepara os dados
@@ -37,10 +28,10 @@ def load_instituto() -> pd.DataFrame:
     df = pd.read_excel(DATA_FILE)
     df.columns = df.columns.str.strip()
 
-    # encontra e renomeia a primeira coluna que contenha 'valor'
+    # identifica e renomeia a primeira coluna com "valor"
     valor_cols = [c for c in df.columns if re.search(r"valor", c, re.IGNORECASE)]
     if not valor_cols:
-        st.error("❌ Não encontrei coluna de Valor.")
+        st.error("❌ Não encontrei nenhuma coluna com 'valor' no nome.")
         return pd.DataFrame()
     df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
 
@@ -48,7 +39,7 @@ def load_instituto() -> pd.DataFrame:
     df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
     df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
 
-    # limpeza básica
+    # remove registros com faltantes nas colunas essenciais
     df = df.dropna(subset=[
         "Cidade", "Estado", "Região",
         "Mesorregiao", "Microrregiao",
@@ -78,13 +69,14 @@ c4.metric("% Cancelada",       f"{pct_cancel:.2f}%")
 st.subheader("Evolução de Status por Mês")
 stats_time = (
     df.groupby([df["Emissão"].dt.to_period("M"), "Status"])
-      .size()
-      .reset_index(name="Quantidade")
+      .size().reset_index(name="Quantidade")
 )
 stats_time["Emissão"] = stats_time["Emissão"].astype(str)
-fig1 = px.line(stats_time, x="Emissão", y="Quantidade", color="Status",
-               markers=True, labels={"Quantidade":"Nº Registros","Emissão":"Mês"})
-st.plotly_chart(fig1, use_container_width=True, key="inst_status")
+fig1 = px.line(
+    stats_time, x="Emissão", y="Quantidade", color="Status",
+    markers=True, labels={"Quantidade":"Nº Registros", "Emissão":"Mês"}
+)
+st.plotly_chart(fig1, use_container_width=True, key="ins_status")
 
 # === Evolução de Valor Cancelado por Mês ===
 st.subheader("Evolução de Valor Cancelado por Mês")
@@ -94,9 +86,11 @@ cancel_time = (
       .sum().reset_index()
 )
 cancel_time["Emissão"] = cancel_time["Emissão"].astype(str)
-fig2 = px.line(cancel_time, x="Emissão", y="Valor_Servicos", markers=True,
-               labels={"Valor_Servicos":"Canceladas (R$)","Emissão":"Mês"})
-st.plotly_chart(fig2, use_container_width=True, key="inst_cancelados")
+fig2 = px.line(
+    cancel_time, x="Emissão", y="Valor_Servicos",
+    markers=True, labels={"Valor_Servicos":"Vendas Canceladas (R$)", "Emissão":"Mês"}
+)
+st.plotly_chart(fig2, use_container_width=True, key="ins_cancelados")
 
 # === KPIs de Vendas ===
 st.subheader("KPIs de Vendas")
@@ -115,36 +109,77 @@ sales_time = (
       .sum().reset_index()
 )
 sales_time["Emissão"] = sales_time["Emissão"].astype(str)
-fig3 = px.line(sales_time, x="Emissão", y="Valor_Servicos", markers=True,
-               labels={"Valor_Servicos":"Vendas (R$)","Emissão":"Mês"})
-st.plotly_chart(fig3, use_container_width=True, key="inst_vendas")
+fig3 = px.line(
+    sales_time, x="Emissão", y="Valor_Servicos",
+    markers=True, labels={"Valor_Servicos":"Vendas (R$)", "Emissão":"Mês"}
+)
+st.plotly_chart(fig3, use_container_width=True, key="ins_vendas")
 
 # === Top 10 Cidades ===
 st.subheader("Top 10 Cidades")
 cid_top = (
     df.groupby("Cidade")["Valor_Servicos"]
-      .sum().reset_index().sort_values("Valor_Servicos", ascending=False)
+      .sum().reset_index()
+      .sort_values("Valor_Servicos", ascending=False)
 )
-fig4 = px.bar(cid_top.head(10), x="Valor_Servicos", y="Cidade",
-              orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"})
-st.plotly_chart(fig4, use_container_width=True, key="inst_top_cidades")
+fig4 = px.bar(
+    cid_top.head(10), x="Valor_Servicos", y="Cidade",
+    orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"}
+)
+st.plotly_chart(fig4, use_container_width=True, key="ins_top_cidades")
 
 # === Top 10 Mesorregiões ===
 st.subheader("Top 10 Mesorregiões")
 meso_top = (
     df.groupby("Mesorregiao")["Valor_Servicos"]
-      .sum().reset_index().sort_values("Valor_Servicos", ascending=False)
+      .sum().reset_index()
+      .sort_values("Valor_Servicos", ascending=False)
 )
-fig5 = px.bar(meso_top.head(10), x="Valor_Servicos", y="Mesorregiao",
-              orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"})
-st.plotly_chart(fig5, use_container_width=True, key="inst_top_meso")
+fig5 = px.bar(
+    meso_top.head(10), x="Valor_Servicos", y="Mesorregiao",
+    orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"}
+)
+st.plotly_chart(fig5, use_container_width=True, key="ins_top_meso")
 
 # === Top 10 Microrregiões ===
 st.subheader("Top 10 Microrregiões")
 micro_top = (
     df.groupby("Microrregiao")["Valor_Servicos"]
-      .sum().reset_index().sort_values("Valor_Servicos", ascending=False)
+      .sum().reset_index()
+      .sort_values("Valor_Servicos", ascending=False)
 )
-fig6 = px.bar(micro_top.head(10), x="Valor_Servicos", y="Microrregiao",
-              orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"})
-st.plotly_chart(fig6, use_container_width=True, key="inst_top_micro")
+fig6 = px.bar(
+    micro_top.head(10), x="Valor_Servicos", y="Microrregiao",
+    orientation="h", text_auto=".2s", labels={"Valor_Servicos":"R$"}
+)
+st.plotly_chart(fig6, use_container_width=True, key="ins_top_micro")
+
+# === Gráfico Adicional: Top 10 Cidades com Mesorregião & Microrregião ===
+st.subheader("Top 10 Cidades por Mesorregião & Microrregião")
+city_meso_micro = (
+    df.groupby(["Mesorregiao","Microrregiao","Cidade"])["Valor_Servicos"]
+      .sum().reset_index()
+      .sort_values("Valor_Servicos", ascending=False)
+      .head(10)
+)
+fig7 = px.bar(
+    city_meso_micro, x="Valor_Servicos", y="Cidade",
+    orientation="h", text_auto=".2s",
+    hover_data=["Mesorregiao","Microrregiao"],
+    labels={"Valor_Servicos":"R$","Cidade":"Cidade"}
+)
+st.plotly_chart(fig7, use_container_width=True, key="ins_extra")
+
+# === Tabela de Cidades com Faturamento ===
+st.subheader("Tabela de Cidades com Faturamento")
+table = cid_top.head(20).copy()
+table["Valor_Servicos"] = table["Valor_Servicos"].apply(
+    lambda x: f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+)
+st.dataframe(table, use_container_width=True)
+
+# === Destaques Finais ===
+st.markdown("---")
+st.markdown(f"**🌿 Mesorregião top:**  {meso_top.iloc[0]['Mesorregiao']} — R$ {meso_top.iloc[0]['Valor_Servicos']:,.2f}")
+st.markdown(f"**🌺 Microrregião top:** {micro_top.iloc[0]['Microrregiao']} — R$ {micro_top.iloc[0]['Valor_Servicos']:,.2f}")
+st.markdown(f"**🏙️ Cidade top:**       {cid_top.iloc[0]['Cidade']}   — R$ {cid_top.iloc[0]['Valor_Servicos']:,.2f}")
