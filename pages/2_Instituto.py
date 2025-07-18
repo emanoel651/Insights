@@ -14,7 +14,7 @@ st.title("RELATÓRIO COMERCIAL — INSTITUTO")
 # Caminho para o arquivo de dados (na raiz do app)
 # -------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
-DATA_FILE = ROOT / "Instituto_2024-2025_ordenado.xlsx"
+DATA_FILE = ROOT / "Institulo_2024-2025_ordenado.xlsx"
 
 # -------------------------------------------------------------------
 # Carrega e prepara os dados
