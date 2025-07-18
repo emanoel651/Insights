@@ -1,31 +1,47 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from pathlib import Path
 
-
-
-
+# -------------------------------------------------------------------
 # Configuração da página
+# -------------------------------------------------------------------
 st.set_page_config(page_title="Plenum", layout="wide")
 
+# -------------------------------------------------------------------
 # Título
+# -------------------------------------------------------------------
 st.title("RELATÓRIO COMERCIAL — PLENUM")
 
+# -------------------------------------------------------------------
+# Caminho para o arquivo de dados
+# -------------------------------------------------------------------
+ROOT = Path(__file__).resolve().parent.parent
+DATA_FILE = ROOT / "meu_projeto" / "Plenum_2024-2025_ordenado.xlsx"
 
-
+# -------------------------------------------------------------------
 # Função para carregar dados da base Plenum
+# -------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def load_plenum() -> pd.DataFrame:
-    df = pd.read_excel("meu_projeto\Plenum_2024-2025_ordenado.xlsx")
+    if not DATA_FILE.exists():
+        st.error(f"❌ Arquivo não encontrado em:\n{DATA_FILE}")
+        return pd.DataFrame()
+
+    df = pd.read_excel(DATA_FILE)
     df.columns = df.columns.str.strip()
+
     # Renomeia a primeira coluna que contenha "Valor"
     valor_cols = [c for c in df.columns if "Valor" in c]
     if not valor_cols:
+        st.error("❌ Coluna de Valor não encontrada.")
         return pd.DataFrame()
     df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
+
     # Converte tipos
     df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
     df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
+
     # Remove linhas com dados faltantes nas colunas essenciais
     df = df.dropna(subset=[
         "Cidade", "Estado", "Região",
@@ -37,36 +53,32 @@ def load_plenum() -> pd.DataFrame:
 # Carrega dados
 df = load_plenum()
 if df.empty:
-    st.error("Erro ao carregar os dados da base Plenum.")
     st.stop()
-
-
 
 # === Resumo de Status ===
 status_counts = df["Status"].value_counts()
-total = int(status_counts.sum())
-cancel = int(status_counts.get("Cancelada", 0))
-normal = int(status_counts.get("Normal", 0))
-pct_cancel = cancel / total * 100 if total else 0
+total   = int(status_counts.sum())
+cancel  = int(status_counts.get("Cancelada", 0))
+normal  = int(status_counts.get("Normal",   0))
+pct_cancel = (cancel / total * 100) if total else 0
 
 st.subheader("Resumo de Status")
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Total de Notas", f"{total}")
-col2.metric("Ativa", f"{normal}")
-col3.metric("Cancelada", f"{cancel}")
-col4.metric("% Cancelada", f"{pct_cancel:.2f}%")
+col1.metric("Total de Notas",     f"{total}")
+col2.metric("Ativa",              f"{normal}")
+col3.metric("Cancelada",          f"{cancel}")
+col4.metric("% Cancelada",        f"{pct_cancel:.2f}%")
 
 # === Evolução de Status por Mês ===
 st.subheader("Evolução de Status por Mês")
 stats_time = (
-    df.groupby([df["Emissão"].dt.to_period("M"), "Status"])  
-      .size()  
+    df.groupby([df["Emissão"].dt.to_period("M"), "Status"])
+      .size()
       .reset_index(name="Quantidade")
 )
 stats_time["Emissão"] = stats_time["Emissão"].astype(str)
 fig1 = px.line(
-    stats_time,
-    x="Emissão", y="Quantidade", color="Status",
+    stats_time, x="Emissão", y="Quantidade", color="Status",
     markers=True,
     labels={"Quantidade":"Nº Registros", "Emissão":"Mês"}
 )
@@ -75,15 +87,14 @@ st.plotly_chart(fig1, use_container_width=True)
 # === Evolução do Valor Cancelado por Mês ===
 st.subheader("Evolução de Valor Cancelado por Mês")
 cancel_time = (
-    df[df["Status"] == "Cancelada"]
+    df[df["Status"]=="Cancelada"]
       .groupby(df["Emissão"].dt.to_period("M"))["Valor_Servicos"]
       .sum()
       .reset_index()
 )
 cancel_time["Emissão"] = cancel_time["Emissão"].astype(str)
 fig2 = px.line(
-    cancel_time,
-    x="Emissão", y="Valor_Servicos",
+    cancel_time, x="Emissão", y="Valor_Servicos",
     markers=True,
     labels={"Valor_Servicos":"Vendas Canceladas (R$)", "Emissão":"Mês"}
 )
@@ -95,9 +106,9 @@ total_vendas = df["Valor_Servicos"].sum()
 v1 = df[df["Emissão"].dt.month <= 6]["Valor_Servicos"].sum()
 v2 = df[df["Emissão"].dt.month >= 7]["Valor_Servicos"].sum()
 k1, k2, k3 = st.columns(3)
-k1.metric("Total de Vendas", f"R$ {total_vendas:,.2f}")
-k2.metric("1º Semestre", f"R$ {v1:,.2f}")
-k3.metric("2º Semestre", f"R$ {v2:,.2f}")
+k1.metric("Total de Vendas",   f"R$ {total_vendas:,.2f}")
+k2.metric("1º Semestre",       f"R$ {v1:,.2f}")
+k3.metric("2º Semestre",       f"R$ {v2:,.2f}")
 
 # === Evolução de Vendas por Mês ===
 st.subheader("Evolução de Vendas por Mês")
@@ -108,8 +119,7 @@ sales_time = (
 )
 sales_time["Emissão"] = sales_time["Emissão"].astype(str)
 fig3 = px.line(
-    sales_time,
-    x="Emissão", y="Valor_Servicos",
+    sales_time, x="Emissão", y="Valor_Servicos",
     markers=True,
     labels={"Valor_Servicos":"Vendas (R$)", "Emissão":"Mês"}
 )
@@ -159,8 +169,6 @@ fig6 = px.bar(
     labels={"Valor_Servicos":"R$"}
 )
 st.plotly_chart(fig6, use_container_width=True)
-
-
 
 # === Gráfico Adicional: Top 10 Cidades com Mesorregião & Microrregião ===
 st.subheader("Top 10 Cidades por Mesorregião & Microrregião")
@@ -226,6 +234,6 @@ st.dataframe(table, use_container_width=True)
 
 # === Destaques Finais ===
 st.markdown("---")
-st.markdown(f"**🌿 Mesorregião top:** {meso_top.iloc[0]['Mesorregiao']} — R$ {meso_top.iloc[0]['Valor_Servicos']:,.2f}")
+st.markdown(f"**🌿 Mesorregião top:**  {meso_top.iloc[0]['Mesorregiao']}  —  R$ {meso_top.iloc[0]['Valor_Servicos']:,.2f}")
 st.markdown(f"**🌺 Microrregião top:** {micro_top.iloc[0]['Microrregiao']} — R$ {micro_top.iloc[0]['Valor_Servicos']:,.2f}")
-st.markdown(f"**🏙️ Cidade top:** {cid_top.iloc[0]['Cidade']} — R$ {cid_top.iloc[0]['Valor_Servicos']:,.2f}")
+st.markdown(f"**🏙️ Cidade top:**       {cid_top.iloc[0]['Cidade']}   —   R$ {cid_top.iloc[0]['Valor_Servicos']:,.2f}")
