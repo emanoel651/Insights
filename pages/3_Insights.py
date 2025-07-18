@@ -384,7 +384,7 @@ st.markdown(
         <li><strong>Mesorregião/Cidade de destaque</strong>: Top regiões concentram &gt;50% do faturamento.</li>
         <li><strong>Classificação “Vale Investir”</strong> (Logistic Regression):  
             acurácia = {accuracy:.3f}, precisão = {precision:.3f}, recall = {recall:.3f}.</li>
-        <li><strong>Recomendação</strong>: focar em mesorregiões de alto volume e crescimento consistente com a precisão de mais de 90%.</li>
+        <li><strong>Recomendação</strong>: Focar em mesorregiões de alto volume e crescimento consistente com a precisão de mais de 90%.</li>
       </ul>
     </div>
     """,
