@@ -43,7 +43,7 @@ def load_data(filename: str) -> pd.DataFrame:
     return df
 
 # Load datasets
-_df_inst   = load_data("Instituto_2024-2025_ordenado.xlsx")
+_df_inst   = load_data("Institulo_2024-2025_ordenado.xlsx")
 df_plenum = load_data("Plenum_2024-2025_ordenado.xlsx")
 df_all    = pd.concat([_df_inst, df_plenum], ignore_index=True)
 
