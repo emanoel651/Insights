@@ -311,7 +311,8 @@ st.markdown(f"""
     <li><strong>Crescimento geral</strong>: ↑ {growth:.1f}% entre {df_time['Emissão'].iloc[0]} e {df_time['Emissão'].iloc[-1]}.</li>
     <li><strong>Crescimento médio das Mesorregiões</strong>: ↑ {avg_growth_meso:.1f}% no período.</li>
     <li><strong>Crescimento médio das Microrregiões</strong>: ↑ {avg_growth_micro:.1f}% no período.</li>
-    <li><strong>Regiões que mais valem a pena investir</strong>: Araraquara (99,47%) e Sul/Sudoeste de Minas (93,99%).</li>
+    <li><strong>Mesoregiões que mais valem a pena investir</strong>:Araraquara (99,47%) e Sul/Sudoeste de Minas (93,99%).</li>
+    <li><strong>Microregiões que mais valem a pena investir</strong>:Itabira 99,999% e Triângulo Mineiro/Alto Paranaíba. (99,992%).</li>
     <li><strong>Observação</strong>: Mesmo com aumento de 138,4%, a microrregião continua apresentando taxas de sucesso maiores que a mesorregião.</li>
   </ul>
 </div>
