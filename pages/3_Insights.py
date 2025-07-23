@@ -307,13 +307,15 @@ st.markdown("---")
 st.markdown(f"""
 <div style="font-size:1.3rem; line-height:1.5;">
   <h2 style="font-size:2rem; margin-bottom:0.5rem;">📝 Conclusões e Pontos Positivos</h2>
-  <ul>  
-    <li><strong>Crescimento geral</strong>: ↑ {growth:.1f}% entre {df_time['Emissão'].iloc[0]} e {df_time['Emissão'].iloc[-1]}.</li>
-    <li><strong>Crescimento médio Mesorregiões</strong>: ↑ {avg_growth_meso:.1f}% no período.</li>
-    <li><strong>Crescimento médio Microrregiões</strong>: ↑ {avg_growth_micro:.1f}% no período.</li>
-    <li><strong>Recomendação</strong>: focar em regiões com alta probabilidade de investimento e crescimento consistente.</li>
-    <li><strong>Recomendação</strong>: As mesoregiões que mais vale apena investir, são Araraquara com 99,47% e Sul/Sudoeste de Minas com 93,99%
-     <li><strong>Recomendação</strong>: Mesmo com auumento de 138%,4%, microregião continua com as taxas de sucesso maior que mesoregião.</li>
+  <ul>
+    <li><strong>Crescimento geral:</strong> ↑ {growth:.1f}% entre {df_time['Emissão'].iloc[0]} e {df_time['Emissão'].iloc[-1]}.</li>
+    <li><strong>Crescimento médio das Mesorregiões:</strong> ↑ {avg_growth_meso:.1f}% no período.</li>
+    <li><strong>Crescimento médio das Microrregiões:</strong> ↑ {avg_growth_micro:.1f}% no período.</li>
+    <li><strong>Mesorregião com maior venda:</strong> {best_meso['Mesorregiao']} (R$ {best_meso['Valor_Servicos']:,.2f}).</li>
+    <li><strong>Microrregião com maior venda:</strong> {best_micro['Microrregiao']} (R$ {best_micro['Valor_Servicos']:,.2f}).</li>
+    <li><strong>Regiões recomendadas para investimento:</strong> Araraquara (99,47%) e Sul/Sudoeste de Minas (93,99%).</li>
+    <li><strong>Observação:</strong> Mesmo com aumento de 138,4%, a microrregião ainda apresenta taxas de sucesso maiores do que a mesorregião.</li>
   </ul>
 </div>
 """, unsafe_allow_html=True)
+
