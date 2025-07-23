@@ -22,7 +22,7 @@ st.set_page_config(page_title="Insights", layout="wide")
 st.title("💡 Insights Gerais — Plenum + Instituto")
 
 # ------------------------------------------------------------------------------
-# Cached data loader
+# Cached data loader (versão corrigida)
 # ------------------------------------------------------------------------------
 @st.cache_data
 def load_data(filename: str) -> pd.DataFrame:
@@ -30,25 +30,39 @@ def load_data(filename: str) -> pd.DataFrame:
     path = base / filename
     df = pd.read_excel(path, engine="openpyxl")
     df.columns = df.columns.str.strip()
+    
+    # Renomeia coluna de valor
     valor_cols = [c for c in df.columns if "Valor" in c]
     if valor_cols:
         df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
+    
+    # Converte data
     df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
-    df["Valor_Servicos"] = (
-        df["Valor_Servicos"].astype(str)
-          .str.replace(".", "", regex=False)
-          .str.replace(",", ".", regex=False)
-    ).astype(float)
+    
+    # Limpa milhares e decimais **apenas** se vier como string
+    if df["Valor_Servicos"].dtype == object:
+        df["Valor_Servicos"] = (
+            df["Valor_Servicos"]
+              .str.replace(r"\.", "", regex=True)   # tira separador de milhar
+              .str.replace(",", ".", regex=False)   # normaliza vírgula para ponto
+        )
+    # Garante que é numérico
+    df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
+    
+    # Remove linhas com dados faltantes
     df = df.dropna(subset=["Emissão", "Valor_Servicos", "Mesorregiao", "Microrregiao", "Cidade"])
     return df
 
-# Load datasets
+# Carrega datasets
 _df_inst   = load_data("Institulo_2024-2025_ordenado.xlsx")
-df_plenum = load_data("Plenum_2024-2025_ordenado.xlsx")
-df_all    = pd.concat([_df_inst, df_plenum], ignore_index=True)
+df_plenum  = load_data("Plenum_2024-2025_ordenado.xlsx")
+df_all     = pd.concat([_df_inst, df_plenum], ignore_index=True)
 
-# Metric: total sales
-st.metric("💰 Total de Vendas", f"R$ {df_all['Valor_Servicos'].sum():,.2f}")
+# ------------------------------------------------------------------------------
+# 1) Total de vendas
+# ------------------------------------------------------------------------------
+total = df_all["Valor_Servicos"].sum()
+st.metric("💰 Total de Vendas", f"R$ {total:,.2f}")
 
 # ------------------------------------------------------------------------------
 # 1) Monthly sales evolution
