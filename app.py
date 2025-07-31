@@ -29,7 +29,7 @@ st.markdown(
         Aqui você acessa as vendas dos últimos 18 meses.<br><br>
         <strong>Como usar</strong><br>
         - Abra o menu no canto superior esquerdo (ícone ☰) e escolha:<br>
-          &bull; Plenum*<br>
+          &bull; Plenum<br>
           &bull; Instituto<br>
           &bull; Insights<br><br>
         Cada página carrega métricas, gráficos e tabelas automaticamente.<br><br>
