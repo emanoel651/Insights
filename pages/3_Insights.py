@@ -265,13 +265,26 @@ st.markdown(f"""
 # ----------------------------------------------------------------------
 # Conclusão
 # ----------------------------------------------------------------------
-st.markdown("---")
-st.markdown("✅ **Análise concluída. Acompanhe os insights estratégicos acima para decisões baseadas em dados.**")
+# Dados para formatação
+total_vendas = df_all["Valor_Servicos"].sum()
+v_jan = int(df_time["Valor_Servicos"].iloc[0] / 1000)
+v_fev = int(df_time["Valor_Servicos"].iloc[1] / 1000)
+v_pico = int(df_time["Valor_Servicos"].max() / 1000)
+v_abr = int(df_time["Valor_Servicos"].iloc[-2] / 1000)
+v_mai = int(df_time["Valor_Servicos"].iloc[-1] / 1000)
+acuracia = accuracy_score(y_test, y_pred) * 100
+recall_vale = classification_report(y_test, y_pred, output_dict=True)["Vale"]["recall"]
+threshold_fmt = threshold
+crescimento = growth
+cres_meso = avg_growth_meso
+cres_micro = avg_growth_micro
 
+# HTML como string separada
+html = f"""
 <div style="font-size:1.3rem; line-height:1.5;">
   <h2 style="font-size:2rem; margin-bottom:0.5rem;">📝 Conclusões e Pontos Positivos</h2>
 
-  <p><strong>Panorama geral de vendas</strong> – O total de vendas combinando Plenum e Instituto é de R$ {:,.2f}. A evolução mensal mostra forte oscilação em 2024: o ano inicia com cerca de R$ {} mil em janeiro, sobe para ~R$ {} mil em fevereiro, recua em março e estabiliza entre R$ 200 mil e R$ 400 mil até o fim do ano. Em 2025 surge um pico expressivo em março (≈R$ {} mil), sinal de um evento ou campanha de vendas; em seguida há queda, mas as vendas de abril e maio (≈R$ {} mil e R$ {} mil) permanecem bem acima da média de 2024.</p>
+  <p><strong>Panorama geral de vendas</strong> – O total de vendas combinando Plenum e Instituto é de R$ {total_vendas:,.2f}. A evolução mensal mostra forte oscilação em 2024: o ano inicia com cerca de R$ {v_jan} mil em janeiro, sobe para ~R$ {v_fev} mil em fevereiro, recua em março e estabiliza entre R$ 200 mil e R$ 400 mil até o fim do ano. Em 2025 surge um pico expressivo em março (≈R$ {v_pico} mil), sinal de um evento ou campanha de vendas; em seguida há queda, mas as vendas de abril e maio (≈R$ {v_abr} mil e R$ {v_mai} mil) permanecem bem acima da média de 2024.</p>
 
   <p><strong>Mesorregiões líderes de vendas</strong> – As 10 principais mesorregiões apresentam forte concentração: Sul/Sudoeste de Minas e Metropolitana de Belo Horizonte lideram, cada uma com pouco mais de R$ 1 milhão em vendas. Em seguida aparecem Zona da Mata (~R$ 800 mil) e Norte de Minas (~R$ 700 mil), enquanto regiões como Araraquara e Jequitinhonha ficam abaixo de R$ 300 mil. Isso indica que o mercado está muito mais aquecido no sudoeste e na capital mineira.</p>
 
@@ -281,29 +294,20 @@ st.markdown("✅ **Análise concluída. Acompanhe os insights estratégicos acim
 
   <p><strong>Probabilidade de “Vale Investir” por região</strong> – O modelo de recomendação calcula a probabilidade de uma região valer a pena para investimento. Entre as mesorregiões, Araraquara (100 %), Vale do Mucuri (~99 %) e Triângulo Mineiro/Alto Paranaíba (~98 %) são as mais promissoras; já Centro Norte Baiano tem apenas 23 %, indicando maior risco. No nível de microrregião, a maior parte apresenta probabilidade muito alta (próxima a 100 %) – destaque para Itabira, Cataguases, Lavras e Juiz de Fora. Microrregiões como Vitória, Almenara e Pirassununga ficam abaixo de 40 %, sugerindo cautela.</p>
 
-  <p><strong>Desempenho do modelo de classificação</strong> – A classificação binária (“Vale investir” vs. “Não vale”) usa como limiar o 70.º percentil de vendas (R$ {:,.2f}). O modelo atingiu {:.1f} % de acurácia; ele identifica corretamente todos os casos de “Não Vale” (recall 1,00), e acerta todas as vezes que classifica algo como “Vale” (precisão 1,00). O recall para “Vale” é {:.2f}, indicando que ainda deixa de marcar alguns investimentos potencialmente bons.</p>
+  <p><strong>Desempenho do modelo de classificação</strong> – A classificação binária (“Vale investir” vs. “Não vale”) usa como limiar o 70.º percentil de vendas (R$ {threshold_fmt:,.2f}). O modelo atingiu {acuracia:.1f} % de acurácia; ele identifica corretamente todos os casos de “Não Vale” (recall 1,00), e acerta todas as vezes que classifica algo como “Vale” (precisão 1,00). O recall para “Vale” é {recall_vale:.2f}, indicando que ainda deixa de marcar alguns investimentos potencialmente bons.</p>
 
   <p><strong>Resumo:</strong></p>
   <ul>
-    <li>📈 Crescimento geral nas vendas: <strong>{:.1f}%</strong></li>
-    <li>📊 Crescimento médio nas mesorregiões: <strong>{:.1f}%</strong></li>
-    <li>📍 Crescimento médio nas microrregiões: <strong>{:.1f}%</strong></li>
+    <li>📈 Crescimento geral nas vendas: <strong>{crescimento:.1f}%</strong></li>
+    <li>📊 Crescimento médio nas mesorregiões: <strong>{cres_meso:.1f}%</strong></li>
+    <li>📍 Crescimento médio nas microrregiões: <strong>{cres_micro:.1f}%</strong></li>
   </ul>
 
   <p><strong>Análise final</strong>: A plataforma revela um crescimento sólido em 2025, apoiado por um pico de vendas em março. O mercado é fortemente concentrado em poucas mesorregiões (especialmente Sul/Sudoeste de Minas e a região metropolitana de BH), mas várias microrregiões e cidades menores contribuem significativamente para o faturamento. As probabilidades de “vale investir” indicam que, além do volume de vendas, algumas regiões possuem alto potencial de retorno – em especial Araraquara e Itabira. O modelo de classificação é confiável (alto precision e recall), embora ainda possa melhorar a sensibilidade para identificar todas as regiões de alto potencial.</p>
 </div>
-""".format(
-    df_all["Valor_Servicos"].sum(),
-    int(df_time["Valor_Servicos"].iloc[0]/1000),
-    int(df_time["Valor_Servicos"].iloc[1]/1000),
-    int(df_time["Valor_Servicos"].max()/1000),
-    int(df_time["Valor_Servicos"].iloc[-2]/1000),
-    int(df_time["Valor_Servicos"].iloc[-1]/1000),
-    threshold,
-    accuracy_score(y_test, y_pred) * 100,
-    classification_report(y_test, y_pred, output_dict=True)["Vale"]["recall"],
-    growth,
-    avg_growth_meso,
-    avg_growth_micro
-), unsafe_allow_html=True)
+"""
+
+# Renderiza
+st.markdown(html, unsafe_allow_html=True)
+
 
