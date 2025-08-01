@@ -318,18 +318,34 @@ for micro in micro_period["Microrregiao"].unique():
 avg_growth_micro=np.mean(growths_micro) if growths_micro else 0
 
 st.markdown("---")
-st.markdown(f"""
+st.markdown("""
 <div style="font-size:1.3rem; line-height:1.5;">
   <h2 style="font-size:2rem; margin-bottom:0.5rem;">📝 Conclusões e Pontos Positivos</h2>
+
+  <p><strong>Panorama geral de vendas</strong> – O total de vendas combinando Plenum e Instituto é de R$ 7 579 365,50. A evolução mensal mostra forte oscilação em 2024: o ano inicia com cerca de R$ 400 k em janeiro, sobe para ~R$ 500 k em fevereiro, recua em março e estabiliza entre R$ 200 k e R$ 400 k até o fim do ano. Em 2025 surge um pico expressivo em março (≈R$ 1,1 M), sinal de um evento ou campanha de vendas; em seguida há queda, mas as vendas de abril e maio (≈R$ 600 k e R$ 550 k) permanecem bem acima da média de 2024.</p>
+
+  <p><strong>Mesorregiões líderes de vendas</strong> – As 10 principais mesorregiões apresentam forte concentração: Sul/Sudoeste de Minas e Metropolitana de Belo Horizonte lideram, cada uma com pouco mais de R$ 1 M em vendas. Em seguida aparecem Zona da Mata (~R$ 0,8 M) e Norte de Minas (~R$ 0,7 M), enquanto regiões como Araraquara e Jequitinhonha ficam abaixo de R$ 0,3 M. Isso indica que o mercado está muito mais aquecido no sudoeste e na capital mineira.</p>
+
+  <p><strong>Microrregiões mais lucrativas</strong> – O ranking por microrregião mostra uma distribuição mais equilibrada: Itabira lidera com ~R$ 300 k, seguida de Manhuaçu (~R$ 270 k), Pouso Alegre e Belo Horizonte (~R$ 250 k cada). Mesmo as microrregiões menores, como Varginha e Patrocínio, mantêm vendas superiores a R$ 100 k. Isso sugere que diversificar a atuação em diferentes microrregiões pode trazer bons resultados.</p>
+
+  <p><strong>Maiores cidades vendedoras</strong> – No nível municipal, Matão é o grande destaque com ~R$ 200 k em vendas. Manhuaçu (~R$ 187 k), Belo Vale (~R$ 160 k), Ubá (~R$ 150 k) e Nepomuceno (~R$ 140 k) também se destacam. A diferença relativamente pequena entre as cidades evidencia que nenhuma única cidade domina o mercado; o portfólio de vendas é mais distribuído.</p>
+
+  <p><strong>Probabilidade de “Vale Investir” por região</strong> – O modelo de recomendação calcula a probabilidade de uma região valer a pena para investimento. Entre as mesorregiões, Araraquara (100 %), Vale do Mucuri (~99 %) e Triângulo Mineiro/Alto Paranaíba (~98 %) são as mais promissoras; já Centro Norte Baiano tem apenas 23 %, indicando maior risco. No nível de microrregião, a maior parte apresenta probabilidade muito alta (próxima a 100 %) – destaque para Itabira, Cataguases, Lavras e Juiz de Fora. Microrregiões como Vitória, Almenara e Pirassununga ficam abaixo de 40 %, sugerindo cautela.</p>
+
+  <p><strong>Desempenho do modelo de classificação</strong> – A classificação binária (“Vale investir” vs. “Não vale”) usa como limiar o 70.º percentil de vendas (R$ 59 337). O modelo atingiu 91,1 % de acurácia; ele identifica corretamente todos os casos de “Não Vale” (recall 1,00), e acerta todas as vezes que classifica algo como “Vale” (precisão 1,00). O recall para “Vale” é 0,71, indicando que ainda deixa de marcar alguns investimentos potencialmente bons.</p>
+
+  <p><strong>Conclusões resumidas:</strong></p>
   <ul>
-    <li><strong>Crescimento geral</strong>: ↑ {growth:.1f}% entre {df_time['Emissão'].iloc[0]} e {df_time['Emissão'].iloc[-1]}.</li>
-    <li><strong>Crescimento médio das Mesorregiões</strong>: ↑ {avg_growth_meso:.1f}% no período.</li>
-    <li><strong>Crescimento médio das Microrregiões</strong>: ↑ {avg_growth_micro:.1f}% no período.</li>
-    <li><strong>Mesoregiões que mais valem a pena investir</strong>:Araraquara (99,47%) e Sul/Sudoeste de Minas (93,99%).</li>
-    <li><strong>Microregiões que mais valem a pena investir</strong>:Itabira 99,999% e Triângulo Mineiro/Alto Paranaíba. (99,992%).</li>
-    <li><strong>Observação</strong>: Mesmo com aumento de 138,4%, a microrregião continua apresentando taxas de sucesso maiores que a mesorregião.</li>
+    <li>Houve crescimento geral de 35 % nas vendas entre janeiro de 2024 e junho de 2025, com crescimento médio das mesorregiões de 92 % e das microrregiões de 90,2 %.</li>
+    <li>As mesorregiões mais promissoras para investimento são Araraquara (probabilidade de sucesso 99,47 %) e Sul/Sudoeste de Minas (93,99 %).</li>
+    <li>Entre as microrregiões, Itabira (99,999 %) e Triângulo Mineiro/Alto Paranaíba (99,992 %) são as que mais valem a pena investir.</li>
+    <li>Mesmo com aumento de 138,4 % nas vendas da mesorregião, a microrregião continua apresentando taxas de sucesso maiores, sugerindo que focar em microrregiões específicas pode ser mais eficiente.</li>
   </ul>
+
+  <p><strong>Análise final</strong>: A plataforma revela um crescimento sólido em 2025, apoiado por um pico de vendas em março. O mercado é fortemente concentrado em poucas mesorregiões (especialmente Sul/Sudoeste de Minas e a região metropolitana de BH), mas várias microrregiões e cidades menores contribuem significativamente para o faturamento. As probabilidades de “vale investir” indicam que, além do volume de vendas, algumas regiões possuem alto potencial de retorno – em especial Araraquara e Itabira. O modelo de classificação é confiável (alto precision e recall), embora ainda possa melhorar a sensibilidade para identificar todas as regiões de alto potencial.</p>
 </div>
+""", unsafe_allow_html=True)
+
 
 """, unsafe_allow_html=True)
 
