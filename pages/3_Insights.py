@@ -5,7 +5,7 @@ import plotly.express as px
 from pathlib import Path
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.cluster import KMeans, DBSCAN
@@ -15,40 +15,55 @@ from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# ------------------------------------------------------------------------------
-# Page configuration
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 st.set_page_config(page_title="Insights", layout="wide")
-st.title("💡 Insights Gerais — Plenum + Instituto")
+st.title("\U0001F4A1 Insights Gerais — Plenum + Instituto")
 
-# ------------------------------------------------------------------------------
-# Cached data loader
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
 @st.cache_data
 def load_data(filename: str) -> pd.DataFrame:
-    base = Path(__file__).resolve().parent.parent
+    try:
+        base = Path(__file__).resolve().parent.parent
+    except NameError:
+        base = Path.cwd()
     path = base / filename
+    if not path.exists():
+        st.error(f"Arquivo não encontrado: {filename}")
+        st.stop()
+
     df = pd.read_excel(path, engine="openpyxl")
     df.columns = df.columns.str.strip()
+
     valor_cols = [c for c in df.columns if "Valor" in c]
     if valor_cols:
         df = df.rename(columns={valor_cols[0]: "Valor_Servicos"})
+
     df["Emissão"] = pd.to_datetime(df["Emissão"], errors="coerce")
-    df["Valor_Servicos"] = (
-        df["Valor_Servicos"].astype(str)
-          .str.replace(".", "", regex=False)
-          .str.replace(",", ".", regex=False)
-    ).astype(float)
+
+    if df["Valor_Servicos"].dtype == object:
+        df["Valor_Servicos"] = (
+            df["Valor_Servicos"]
+            .str.replace(".", "", regex=False)
+            .str.replace(",", ".", regex=False)
+        )
+    df["Valor_Servicos"] = pd.to_numeric(df["Valor_Servicos"], errors="coerce")
     df = df.dropna(subset=["Emissão", "Valor_Servicos", "Mesorregiao", "Microrregiao", "Cidade"])
+
+    # Debug: mostrar possíveis infladores
+    st.write("Top 10 maiores valores:", df["Valor_Servicos"].sort_values(ascending=False).head(10))
+    st.write("Número total de linhas:", len(df))
+    st.write("Número de linhas únicas:", len(df.drop_duplicates()))
+
     return df
 
-# Load datasets
-_df_inst   = load_data("Institulo_2024-2025_ordenado.xlsx")
+# ----------------------------------------------------------------------
+_df_inst  = load_data("Instituto_2024-2025_ordenado.xlsx")
 df_plenum = load_data("Plenum_2024-2025_ordenado.xlsx")
 df_all    = pd.concat([_df_inst, df_plenum], ignore_index=True)
 
-# Metric: total sales
-st.metric("💰 Total de Vendas", f"R$ {df_all['Valor_Servicos'].sum():,.2f}")
+# ----------------------------------------------------------------------
+# Total de Vendas
+st.metric("\U0001F4B0 Total de Vendas", f"R$ {df_all['Valor_Servicos'].sum():,.2f}")
 
 # ------------------------------------------------------------------------------
 # 1) Monthly sales evolution
