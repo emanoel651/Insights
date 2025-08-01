@@ -305,22 +305,25 @@ avg_growth_micro=np.mean(growths_micro) if growths_micro else 0
 # ----------------------------------------------------------------------
 # 7) Conclusões finais e resumo executivo
 # ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 7) Conclusões finais e resumo executivo
+# ----------------------------------------------------------------------
 st.markdown("---")
 st.markdown("""
 <div style="font-size:1.3rem; line-height:1.5;">
-  <h2 style="font-size:2rem; margin-bottom:0.5rem;">📝 Conclusões e Pontos Positivos</h2>
+  <h2 style="font-size:2rem; margin-bottom:0.5rem;">🗘️ Conclusões e Pontos Positivos</h2>
 
-  <p><strong>Panorama geral de vendas</strong> – O total de vendas combinando Plenum e Instituto é de R$ {:,.2f}. A evolução mensal mostra forte oscilação em 2024: o ano inicia com cerca de R$ {} mil em janeiro, sobe para ~R$ {} mil em fevereiro, recua em março e estabiliza entre R$ 200 mil e R$ 400 mil até o fim do ano. Em 2025 surge um pico expressivo em março (≈R$ {} mil), sinal de um evento ou campanha de vendas; em seguida há queda, mas as vendas de abril e maio (≈R$ {} mil e R$ {} mil) permanecem bem acima da média de 2024.</p>
+  <p><strong>Panorama geral de vendas</strong> – O total de vendas combinando Plenum e Instituto é de R$ {:.2f}. A evolução mensal mostra forte oscilação em 2024: o ano inicia com cerca de R$ {:.0f} mil em janeiro, sobe para ~R$ {:.0f} mil em fevereiro, recua em março e estabiliza entre R$ 200 mil e R$ 400 mil até o fim do ano. Em 2025 surge um pico expressivo em março (≈R$ {:.0f} mil), sinal de um evento ou campanha de vendas; em seguida há queda, mas as vendas de abril e maio (≈R$ {:.0f} mil e R$ {:.0f} mil) permanecem bem acima da média de 2024.</p>
 
-  <p><strong>Mesorregiões líderes de vendas</strong> – As 10 principais mesorregiões apresentam forte concentração: Sul/Sudoeste de Minas e Metropolitana de Belo Horizonte lideram, cada uma com pouco mais de R$ 1 milhão em vendas. Em seguida aparecem Zona da Mata (~R$ 800 mil) e Norte de Minas (~R$ 700 mil), enquanto regiões como Araraquara e Jequitinhonha ficam abaixo de R$ 300 mil. Isso indica que o mercado está muito mais aquecido no sudoeste e na capital mineira.</p>
+  <p><strong>Mesorregiões líderes de vendas</strong> – As 10 principais mesorregiões apresentam forte concentração: Sul/Sudoeste de Minas e Metropolitana de Belo Horizonte lideram, cada uma com pouco mais de R$ 1 milhão em vendas. Em seguida aparecem Zona da Mata (~R$ 800 mil) e Norte de Minas (~R$ 700 mil), enquanto regiões como Araraquara e Jequitinhonha ficam abaixo de R$ 300 mil. Isso indica que o mercado está muito mais aquecido no sudoeste e na capital mineira.</p>
 
-  <p><strong>Microrregiões mais lucrativas</strong> – O ranking por microrregião mostra uma distribuição mais equilibrada: Itabira lidera com ~R$ 300 mil, seguida de Manhuaçu (~R$ 270 mil), Pouso Alegre e Belo Horizonte (~R$ 250 mil cada). Mesmo as microrregiões menores, como Varginha e Patrocínio, mantêm vendas superiores a R$ 100 mil. Isso sugere que diversificar a atuação em diferentes microrregiões pode trazer bons resultados.</p>
+  <p><strong>Microrregiões mais lucrativas</strong> – O ranking por microrregião mostra uma distribuição mais equilibrada: Itabira lidera com ~R$ 300 mil, seguida de Manhuaçu (~R$ 270 mil), Pouso Alegre e Belo Horizonte (~R$ 250 mil cada). Mesmo as microrregiões menores, como Varginha e Patrocínio, mantêm vendas superiores a R$ 100 mil. Isso sugere que diversificar a atuação em diferentes microrregiões pode trazer bons resultados.</p>
 
-  <p><strong>Maiores cidades vendedoras</strong> – No nível municipal, Matão é o grande destaque com ~R$ 200 mil em vendas. Manhuaçu (~R$ 187 mil), Belo Vale (~R$ 160 mil), Ubá (~R$ 150 mil) e Nepomuceno (~R$ 140 mil) também se destacam. A diferença relativamente pequena entre as cidades evidencia que nenhuma única cidade domina o mercado; o portfólio de vendas é mais distribuído.</p>
+  <p><strong>Maiores cidades vendedoras</strong> – No nível municipal, Matão é o grande destaque com ~R$ 200 mil em vendas. Manhuaçu (~R$ 187 mil), Belo Vale (~R$ 160 mil), Ubá (~R$ 150 mil) e Nepomuceno (~R$ 140 mil) também se destacam. A diferença relativamente pequena entre as cidades evidencia que nenhuma única cidade domina o mercado; o portfólio de vendas é mais distribuído.</p>
 
-  <p><strong>Probabilidade de “Vale Investir” por região</strong> – O modelo de recomendação calcula a probabilidade de uma região valer a pena para investimento. Entre as mesorregiões, Araraquara (100 %), Vale do Mucuri (~99 %) e Triângulo Mineiro/Alto Paranaíba (~98 %) são as mais promissoras; já Centro Norte Baiano tem apenas 23 %, indicando maior risco. No nível de microrregião, a maior parte apresenta probabilidade muito alta (próxima a 100 %) – destaque para Itabira, Cataguases, Lavras e Juiz de Fora. Microrregiões como Vitória, Almenara e Pirassununga ficam abaixo de 40 %, sugerindo cautela.</p>
+  <p><strong>Probabilidade de “Vale Investir” por região</strong> – O modelo de recomendação calcula a probabilidade de uma região valer a pena para investimento. Entre as mesorregiões, Araraquara (100%), Vale do Mucuri (~99%) e Triângulo Mineiro/Alto Paranaíba (~98%) são as mais promissoras; já Centro Norte Baiano tem apenas 23%, indicando maior risco. No nível de microrregião, a maior parte apresenta probabilidade muito alta (próxima a 100%) – destaque para Itabira, Cataguases, Lavras e Juiz de Fora. Microrregiões como Vitória, Almenara e Pirassununga ficam abaixo de 40%, sugerindo cautela.</p>
 
-  <p><strong>Desempenho do modelo de classificação</strong> – A classificação binária (“Vale investir” vs. “Não vale”) usa como limiar o 70.º percentil de vendas (R$ {:,.2f}). O modelo atingiu {:.1f} % de acurácia; ele identifica corretamente todos os casos de “Não Vale” (recall 1,00), e acerta todas as vezes que classifica algo como “Vale” (precisão 1,00). O recall para “Vale” é {:.2f}, indicando que ainda deixa de marcar alguns investimentos potencialmente bons.</p>
+  <p><strong>Desempenho do modelo de classificação</strong> – A classificação binária (“Vale investir” vs. “Não vale”) usa como limiar o 70.º percentil de vendas (R$ {:.2f}). O modelo atingiu {:.1f}% de acurácia; ele identifica corretamente todos os casos de “Não Vale” (recall 1,00), e acerta todas as vezes que classifica algo como “Vale” (precisão 1,00). O recall para “Vale” é {:.2f}, indicando que ainda deixa de marcar alguns investimentos potencialmente bons.</p>
 
   <p><strong>Resumo:</strong></p>
   <ul>
@@ -331,3 +334,5 @@ st.markdown("""
 
   <p><strong>Análise final</strong>: A plataforma revela um crescimento sólido em 2025, apoiado por um pico de vendas em março. O mercado é fortemente concentrado em poucas mesorregiões (especialmente Sul/Sudoeste de Minas e a região metropolitana de BH), mas várias microrregiões e cidades menores contribuem significativamente para o faturamento. As probabilidades de “vale investir” indicam que, além do volume de vendas, algumas regiões possuem alto potencial de retorno – em especial Araraquara e Itabira. O modelo de classificação é confiável (alto precision e recall), embora ainda possa melhorar a sensibilidade para identificar todas as regiões de alto potencial.</p>
 </div>
+""", unsafe_allow_html=True)
+
